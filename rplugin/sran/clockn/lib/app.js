@@ -55,6 +55,7 @@ var Clock = /** @class */ (function () {
                         buffer = _a.sent();
                         this.buffer = buffer;
                         buffer.setOption('buftype', 'nofile');
+                        buffer.setOption('modifiable', false);
                         return [4 /*yield*/, this.createWin(this.bufnr)];
                     case 2:
                         win = _a.sent();
@@ -87,19 +88,36 @@ var Clock = /** @class */ (function () {
         this.updateTime();
     };
     Clock.prototype.updateTime = function () {
-        var now = new Date();
-        var hours = align(now.getHours());
-        var minutes = align(now.getMinutes());
-        var seconds = align(now.getSeconds());
-        var lines = fronts_1.fronts[hours[0]]
-            .map(function (item, idx) {
-            var hour = "" + item.join('') + fronts_1.fronts[hours[1]][idx].join('');
-            var separator = fronts_1.fronts['separator'][idx].join('');
-            var minute = "" + fronts_1.fronts[minutes[0]][idx].join('') + fronts_1.fronts[minutes[1]][idx].join('');
-            var second = "" + fronts_1.fronts[seconds[0]][idx].join('') + fronts_1.fronts[seconds[1]][idx].join('');
-            return ("" + hour + separator + minute + separator + second).trimRight();
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var now, hours, minutes, seconds, lines;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        now = new Date();
+                        hours = align(now.getHours());
+                        minutes = align(now.getMinutes());
+                        seconds = align(now.getSeconds());
+                        lines = fronts_1.fronts[hours[0]]
+                            .map(function (item, idx) {
+                            var hour = "" + item.join('') + fronts_1.fronts[hours[1]][idx].join('');
+                            var separator = fronts_1.fronts['separator'][idx].join('');
+                            var minute = "" + fronts_1.fronts[minutes[0]][idx].join('') + fronts_1.fronts[minutes[1]][idx].join('');
+                            var second = "" + fronts_1.fronts[seconds[0]][idx].join('') + fronts_1.fronts[seconds[1]][idx].join('');
+                            return ("" + hour + separator + minute + separator + second).trimRight();
+                        });
+                        return [4 /*yield*/, this.buffer.setOption('modifiable', true)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.buffer.replace(lines, 0)];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.buffer.setOption('modifiable', false)];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
         });
-        this.buffer.replace(lines, 0);
     };
     Clock.prototype.createBuffer = function () {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
