@@ -21,13 +21,21 @@ export class Clock {
   public async init() {
     const { nvim } = this.plugin
     const isEnable = await nvim.getVar('clockn_enable')
-    this.width = await nvim.call('winwidth', 0)
+    this.width = await nvim.getOption('columns') as number
 
     nvim.on('notification', (method: string) => {
-      if (method === 'clockn-disable') {
-        this.close()
-      } else if (method === 'clockn-enable') {
-        this.enable()
+      switch (method) {
+        case 'clockn-disable':
+          this.close()
+          break;
+        case 'clockn-enable':
+          this.enable()
+          break;
+        case 'clockn-flash':
+          this.flash()
+          break
+        default:
+          break;
       }
     })
 
@@ -60,6 +68,27 @@ export class Clock {
     this.plugin.nvim.call('clockn#close_win', this.winnr)
     this.timer = undefined
     this.buffer = undefined
+  }
+
+  public async flash() {
+    if (this.timer === undefined) {
+      return
+    }
+    const { nvim } = this.plugin
+    this.width = await nvim.getOption('columns') as number
+    await nvim.call('nvim_win_config',[
+      this.winnr,
+      -1,
+      -1,
+      {
+        relative: 'editor',
+        anchor: 'NE',
+        focusable: false,
+        row: 1,
+        col: this.width
+      }
+    ])
+    nvim.command('mode')
   }
 
   private updateClock() {

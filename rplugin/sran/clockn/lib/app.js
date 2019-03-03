@@ -22,15 +22,22 @@ var Clock = /** @class */ (function () {
                     case 1:
                         isEnable = _b.sent();
                         _a = this;
-                        return [4 /*yield*/, nvim.call('winwidth', 0)];
+                        return [4 /*yield*/, nvim.getOption('columns')];
                     case 2:
-                        _a.width = _b.sent();
+                        _a.width = (_b.sent());
                         nvim.on('notification', function (method) {
-                            if (method === 'clockn-disable') {
-                                _this.close();
-                            }
-                            else if (method === 'clockn-enable') {
-                                _this.enable();
+                            switch (method) {
+                                case 'clockn-disable':
+                                    _this.close();
+                                    break;
+                                case 'clockn-enable':
+                                    _this.enable();
+                                    break;
+                                case 'clockn-flash':
+                                    _this.flash();
+                                    break;
+                                default:
+                                    break;
                             }
                         });
                         if (isEnable) {
@@ -76,6 +83,40 @@ var Clock = /** @class */ (function () {
         this.plugin.nvim.call('clockn#close_win', this.winnr);
         this.timer = undefined;
         this.buffer = undefined;
+    };
+    Clock.prototype.flash = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var nvim, _a;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (this.timer === undefined) {
+                            return [2 /*return*/];
+                        }
+                        nvim = this.plugin.nvim;
+                        _a = this;
+                        return [4 /*yield*/, nvim.getOption('columns')];
+                    case 1:
+                        _a.width = (_b.sent());
+                        return [4 /*yield*/, nvim.call('nvim_win_config', [
+                                this.winnr,
+                                -1,
+                                -1,
+                                {
+                                    relative: 'editor',
+                                    anchor: 'NE',
+                                    focusable: false,
+                                    row: 1,
+                                    col: this.width
+                                }
+                            ])];
+                    case 2:
+                        _b.sent();
+                        nvim.command('mode');
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     Clock.prototype.updateClock = function () {
         var _this = this;

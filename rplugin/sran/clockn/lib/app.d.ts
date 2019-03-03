@@ -10,6 +10,7 @@ export declare class Clock {
     init(): Promise<void>;
     enable(): Promise<void>;
     close(): void;
+    flash(): Promise<void>;
     private updateClock;
     private updateTime;
     private createBuffer;
