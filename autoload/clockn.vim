@@ -32,7 +32,6 @@ endfunction
 function! clockn#close_clock_for_last_win() abort
   let l:tabnr = tabpagenr()
   let l:win_count = tabpagewinnr(l:tabnr, '$')
-  echomsg l:win_count
   if l:win_count <=# 2
     call sran#rpc#request('clockn-disable')
   endif
