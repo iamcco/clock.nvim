@@ -25,8 +25,17 @@ function! clockn#init_auto() abort
     autocmd TabLeave * call clockn#close_temp()
     autocmd TabEnter * call clockn#open_temp()
     autocmd VimResized * call sran#rpc#notify('clockn-flash')
-    autocmd QuitPre * call sran#rpc#request('clockn-disable')
+    autocmd QuitPre * call clockn#close_clock_for_last_win()
   augroup END
+endfunction
+
+function! clockn#close_clock_for_last_win() abort
+  let l:tabnr = tabpagenr()
+  let l:win_count = tabpagewinnr(l:tabnr, '$')
+  echomsg l:win_count
+  if l:win_count <=# 2
+    call sran#rpc#request('clockn-disable')
+  endif
 endfunction
 
 function! clockn#close_temp() abort
