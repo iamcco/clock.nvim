@@ -9,6 +9,12 @@ let g:loaded_clockn = 1
 let s:save_cpo = &cpo
 set cpo&vim
 
+if exists('g:clockn_color')
+  execute "highlight ClockNormal guifg=" . g:clockn_color
+else
+  highlight default link ClockNormal Normal
+endif
+
 function! s:init() abort
   command! ClockDisable call clockn#disable()
   command! ClockEnable call clockn#enable()

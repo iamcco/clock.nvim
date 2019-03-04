@@ -119,8 +119,11 @@ var Clock = /** @class */ (function () {
                         return [4 /*yield*/, win.setOption('signcolumn', 'no')];
                     case 10:
                         _a.sent();
-                        return [4 /*yield*/, this.updateClock()];
+                        return [4 /*yield*/, win.setOption('winhighlight', 'Normal:ClockNormal')];
                     case 11:
+                        _a.sent();
+                        return [4 /*yield*/, this.updateClock()];
+                    case 12:
                         _a.sent();
                         return [2 /*return*/];
                 }

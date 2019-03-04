@@ -19,6 +19,12 @@ Plug 'iamcco/clock.nvim'
 " auto enable when neovim start
 let g:clockn_enable = 1
 
+" config the clock's color
+let g:clockn_color = '#000000'
+
+" or use the ClockNormal highlight group
+highlight ClockNormal guifg=#000000
+
 " enable clock
 :ClockEnable
 

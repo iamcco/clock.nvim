@@ -95,6 +95,7 @@ export class Clock {
     await win.setOption('cursorcolumn', false)
     await win.setOption('conceallevel', 2)
     await win.setOption('signcolumn', 'no')
+    await win.setOption('winhighlight', 'Normal:ClockNormal')
     await this.updateClock()
   }
 
