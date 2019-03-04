@@ -1,5 +1,5 @@
 import Plugin from 'sran.nvim';
-import { Subject, Observable, Subscription, from, of } from 'rxjs';
+import { Subject, Subscription, from, of } from 'rxjs';
 import { mergeMap, filter, catchError } from 'rxjs/operators';
 import { Buffer, Window } from 'neovim';
 
@@ -31,7 +31,6 @@ export class Clock {
     const { nvim, util } = this.plugin
     this.logger = util.getLogger('clock.nvim')
     this.width = await nvim.getOption('columns') as number
-    const isEnable = await nvim.getVar('clockn_enable')
 
     this.flashSubscription = this.flash$.pipe(
       filter(() => this.timer !== undefined),
@@ -78,15 +77,11 @@ export class Clock {
           break;
       }
     })
-
-    if (isEnable) {
-      this.enable()
-    }
   }
 
   public async enable() {
     if (this.timer !== undefined) {
-      return
+      await this.close()
     }
     const buffer = await this.createBuffer()
     this.buffer = buffer

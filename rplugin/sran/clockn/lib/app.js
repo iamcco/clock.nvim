@@ -15,7 +15,7 @@ var Clock = /** @class */ (function () {
     }
     Clock.prototype.init = function () {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var _a, nvim, util, _b, isEnable;
+            var _a, nvim, util, _b;
             var _this = this;
             return tslib_1.__generator(this, function (_c) {
                 switch (_c.label) {
@@ -26,9 +26,6 @@ var Clock = /** @class */ (function () {
                         return [4 /*yield*/, nvim.getOption('columns')];
                     case 1:
                         _b.width = (_c.sent());
-                        return [4 /*yield*/, nvim.getVar('clockn_enable')];
-                    case 2:
-                        isEnable = _c.sent();
                         this.flashSubscription = this.flash$.pipe(operators_1.filter(function () { return _this.timer !== undefined; }), operators_1.mergeMap(function () {
                             return rxjs_1.from(_this.flash()).pipe(operators_1.catchError(function (error) {
                                 return rxjs_1.of(error);
@@ -79,9 +76,6 @@ var Clock = /** @class */ (function () {
                                 }
                             });
                         }); });
-                        if (isEnable) {
-                            this.enable();
-                        }
                         return [2 /*return*/];
                 }
             });
@@ -93,38 +87,40 @@ var Clock = /** @class */ (function () {
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (this.timer !== undefined) {
-                            return [2 /*return*/];
-                        }
-                        return [4 /*yield*/, this.createBuffer()];
+                        if (!(this.timer !== undefined)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.close()];
                     case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2: return [4 /*yield*/, this.createBuffer()];
+                    case 3:
                         buffer = _a.sent();
                         this.buffer = buffer;
                         buffer.setOption('buftype', 'nofile');
                         buffer.setOption('modifiable', false);
                         return [4 /*yield*/, this.createWin(this.bufnr)];
-                    case 2:
+                    case 4:
                         win = _a.sent();
                         return [4 /*yield*/, win.setOption('number', false)];
-                    case 3:
-                        _a.sent();
-                        return [4 /*yield*/, win.setOption('relativenumber', false)];
-                    case 4:
-                        _a.sent();
-                        return [4 /*yield*/, win.setOption('cursorline', false)];
                     case 5:
                         _a.sent();
-                        return [4 /*yield*/, win.setOption('cursorcolumn', false)];
+                        return [4 /*yield*/, win.setOption('relativenumber', false)];
                     case 6:
                         _a.sent();
-                        return [4 /*yield*/, win.setOption('conceallevel', 2)];
+                        return [4 /*yield*/, win.setOption('cursorline', false)];
                     case 7:
                         _a.sent();
-                        return [4 /*yield*/, win.setOption('signcolumn', 'no')];
+                        return [4 /*yield*/, win.setOption('cursorcolumn', false)];
                     case 8:
                         _a.sent();
-                        return [4 /*yield*/, this.updateClock()];
+                        return [4 /*yield*/, win.setOption('conceallevel', 2)];
                     case 9:
+                        _a.sent();
+                        return [4 /*yield*/, win.setOption('signcolumn', 'no')];
+                    case 10:
+                        _a.sent();
+                        return [4 /*yield*/, this.updateClock()];
+                    case 11:
                         _a.sent();
                         return [2 /*return*/];
                 }
