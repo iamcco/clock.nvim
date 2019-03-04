@@ -15,7 +15,10 @@ function! s:init() abort
   if get(g:, 'clockn_enable', 0) ==# 1
     augroup ClockN
       autocmd!
-      autocmd TabEnter,VimResized * call sran#rpc#notify('clockn-flash')
+      "autocmd TabLeave * call sran#rpc#request('clockn-disable')
+      "autocmd TabEnter * call sran#rpc#notify('clockn-enable')
+      "autocmd VimResized * call sran#rpc#notify('clockn-flash')
+      "autocmd VimLeave,VimLeavePre,WinLeave * call sran#rpc#request('clockn-disable')
     augroup END
   endif
 endfunction

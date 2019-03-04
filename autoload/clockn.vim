@@ -13,7 +13,10 @@ function! clockn#enable() abort
   call sran#rpc#notify('clockn-enable')
   augroup ClockN
     autocmd!
-    autocmd TabEnter,VimResized * call sran#rpc#notify('clockn-flash')
+    "autocmd TabLeave * call sran#rpc#request('clockn-disable')
+    "autocmd TabEnter * call sran#rpc#notify('clockn-enable')
+    "autocmd TabEnter,VimResized * call sran#rpc#notify('clockn-flash')
+    "autocmd VimLeave,VimLeavePre * call sran#rpc#request('clockn-disable')
   augroup END
 endfunction
 

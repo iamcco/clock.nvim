@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var tslib_1 = require("tslib");
+var rxjs_1 = require("rxjs");
+var operators_1 = require("rxjs/operators");
 var fronts_1 = require("./fronts");
 function align(num) {
     return ("" + num).replace(/^(\d)$/, '0$1');
@@ -8,23 +10,34 @@ function align(num) {
 var Clock = /** @class */ (function () {
     function Clock(plugin) {
         this.plugin = plugin;
+        this.flash$ = new rxjs_1.Subject();
         this.init();
     }
     Clock.prototype.init = function () {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var nvim, isEnable, _a;
+            var _a, nvim, util, _b, isEnable;
             var _this = this;
-            return tslib_1.__generator(this, function (_b) {
-                switch (_b.label) {
+            return tslib_1.__generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
-                        nvim = this.plugin.nvim;
-                        return [4 /*yield*/, nvim.getVar('clockn_enable')];
-                    case 1:
-                        isEnable = _b.sent();
-                        _a = this;
+                        _a = this.plugin, nvim = _a.nvim, util = _a.util;
+                        this.logger = util.getLogger('clock.nvim');
+                        _b = this;
                         return [4 /*yield*/, nvim.getOption('columns')];
+                    case 1:
+                        _b.width = (_c.sent());
+                        return [4 /*yield*/, nvim.getVar('clockn_enable')];
                     case 2:
-                        _a.width = (_b.sent());
+                        isEnable = _c.sent();
+                        this.flashSubscription = this.flash$.pipe(operators_1.filter(function () { return _this.timer !== undefined; }), operators_1.mergeMap(function () {
+                            return rxjs_1.from(_this.flash()).pipe(operators_1.catchError(function (error) {
+                                return rxjs_1.of(error);
+                            }));
+                        })).subscribe(function (error) {
+                            if (error) {
+                                _this.logger.error('Flash Error: ', error);
+                            }
+                        });
                         nvim.on('notification', function (method) {
                             switch (method) {
                                 case 'clockn-disable':
@@ -34,12 +47,38 @@ var Clock = /** @class */ (function () {
                                     _this.enable();
                                     break;
                                 case 'clockn-flash':
-                                    _this.flash();
+                                    _this.flash$.next(Date.now());
                                     break;
                                 default:
                                     break;
                             }
                         });
+                        nvim.on('request', function (method, args, resp) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                            var _a;
+                            return tslib_1.__generator(this, function (_b) {
+                                switch (_b.label) {
+                                    case 0:
+                                        _a = method;
+                                        switch (_a) {
+                                            case 'clockn-disable': return [3 /*break*/, 1];
+                                            case 'clockn-enable': return [3 /*break*/, 3];
+                                        }
+                                        return [3 /*break*/, 5];
+                                    case 1: return [4 /*yield*/, this.close()];
+                                    case 2:
+                                        _b.sent();
+                                        resp.send();
+                                        return [3 /*break*/, 6];
+                                    case 3: return [4 /*yield*/, this.enable()];
+                                    case 4:
+                                        _b.sent();
+                                        resp.send();
+                                        return [3 /*break*/, 6];
+                                    case 5: return [3 /*break*/, 6];
+                                    case 6: return [2 /*return*/];
+                                }
+                            });
+                        }); });
                         if (isEnable) {
                             this.enable();
                         }
@@ -66,23 +105,51 @@ var Clock = /** @class */ (function () {
                         return [4 /*yield*/, this.createWin(this.bufnr)];
                     case 2:
                         win = _a.sent();
-                        win.setOption('number', false);
-                        win.setOption('relativenumber', false);
-                        win.setOption('cursorline', false);
-                        win.setOption('cursorcolumn', false);
-                        win.setOption('conceallevel', 2);
-                        win.setOption('signcolumn', 'no');
-                        this.updateClock();
+                        return [4 /*yield*/, win.setOption('number', false)];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, win.setOption('relativenumber', false)];
+                    case 4:
+                        _a.sent();
+                        return [4 /*yield*/, win.setOption('cursorline', false)];
+                    case 5:
+                        _a.sent();
+                        return [4 /*yield*/, win.setOption('cursorcolumn', false)];
+                    case 6:
+                        _a.sent();
+                        return [4 /*yield*/, win.setOption('conceallevel', 2)];
+                    case 7:
+                        _a.sent();
+                        return [4 /*yield*/, win.setOption('signcolumn', 'no')];
+                    case 8:
+                        _a.sent();
+                        return [4 /*yield*/, this.updateClock()];
+                    case 9:
+                        _a.sent();
                         return [2 /*return*/];
                 }
             });
         });
     };
     Clock.prototype.close = function () {
-        clearTimeout(this.timer);
-        this.plugin.nvim.call('clockn#close_win', this.winnr);
-        this.timer = undefined;
-        this.buffer = undefined;
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        clearTimeout(this.timer);
+                        return [4 /*yield*/, this.plugin.nvim.call('clockn#close_win', this.winnr)];
+                    case 1:
+                        _a.sent();
+                        this.timer = undefined;
+                        this.buffer = undefined;
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Clock.prototype.destroy = function () {
+        this.close();
+        this.flashSubscription.unsubscribe();
     };
     Clock.prototype.flash = function () {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
@@ -119,20 +186,30 @@ var Clock = /** @class */ (function () {
         });
     };
     Clock.prototype.updateClock = function () {
-        var _this = this;
-        if (this.timer) {
-            clearTimeout(this.timer);
-        }
-        this.timer = setTimeout(function () {
-            _this.updateClock();
-        }, 1000);
-        this.updateTime();
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (this.timer) {
+                            clearTimeout(this.timer);
+                        }
+                        this.timer = setTimeout(function () {
+                            _this.updateClock();
+                        }, 1000);
+                        return [4 /*yield*/, this.updateTime()];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
     };
     Clock.prototype.updateTime = function () {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var now, hours, minutes, seconds, lines;
-            return tslib_1.__generator(this, function (_a) {
-                switch (_a.label) {
+            var now, hours, minutes, seconds, lines, _a, _b, _c;
+            return tslib_1.__generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
                         now = new Date();
                         hours = align(now.getHours());
@@ -146,15 +223,30 @@ var Clock = /** @class */ (function () {
                             var second = "" + fronts_1.fronts[seconds[0]][idx].join('') + fronts_1.fronts[seconds[1]][idx].join('');
                             return ("" + hour + separator + minute + separator + second).trimRight();
                         });
+                        _a = this.buffer;
+                        if (!_a) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.buffer.setOption('modifiable', true)];
                     case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.buffer.replace(lines, 0)];
+                        _a = (_d.sent());
+                        _d.label = 2;
                     case 2:
-                        _a.sent();
-                        return [4 /*yield*/, this.buffer.setOption('modifiable', false)];
+                        _a;
+                        _b = this.buffer;
+                        if (!_b) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.buffer.replace(lines, 0)];
                     case 3:
-                        _a.sent();
+                        _b = (_d.sent());
+                        _d.label = 4;
+                    case 4:
+                        _b;
+                        _c = this.buffer;
+                        if (!_c) return [3 /*break*/, 6];
+                        return [4 /*yield*/, this.buffer.setOption('modifiable', false)];
+                    case 5:
+                        _c = (_d.sent());
+                        _d.label = 6;
+                    case 6:
+                        _c;
                         return [2 /*return*/];
                 }
             });

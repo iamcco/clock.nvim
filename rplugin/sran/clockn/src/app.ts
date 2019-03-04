@@ -1,4 +1,6 @@
 import Plugin from 'sran.nvim';
+import { Subject, Observable, Subscription, from, of } from 'rxjs';
+import { mergeMap, filter, catchError } from 'rxjs/operators';
 import { Buffer, Window } from 'neovim';
 
 import { fronts } from './fronts';
@@ -8,20 +10,43 @@ function align(num: string | number): string {
 }
 
 export class Clock {
+  private flash$: Subject<any> = new Subject()
+  private flashSubscription: Subscription
   private width: number
   private bufnr: number
   private winnr: number
   private buffer: Buffer
   private timer: NodeJS.Timer
+  private logger: {
+    info: (...args: any[]) => void
+    warn: (...args: any[]) => void
+    error: (...args: any[]) => void
+  }
 
   public constructor(private plugin: Plugin) {
     this.init()
   }
 
   public async init() {
-    const { nvim } = this.plugin
-    const isEnable = await nvim.getVar('clockn_enable')
+    const { nvim, util } = this.plugin
+    this.logger = util.getLogger('clock.nvim')
     this.width = await nvim.getOption('columns') as number
+    const isEnable = await nvim.getVar('clockn_enable')
+
+    this.flashSubscription = this.flash$.pipe(
+      filter(() => this.timer !== undefined),
+      mergeMap(() => {
+        return from(this.flash()).pipe(
+          catchError(error => {
+            return of(error)
+          })
+        )
+      })
+    ).subscribe(error => {
+      if (error) {
+        this.logger.error('Flash Error: ', error)
+      }
+    })
 
     nvim.on('notification', (method: string) => {
       switch (method) {
@@ -32,8 +57,23 @@ export class Clock {
           this.enable()
           break;
         case 'clockn-flash':
-          this.flash()
+          this.flash$.next(Date.now())
           break
+        default:
+          break;
+      }
+    })
+
+    nvim.on('request', async (method: string, args: any[], resp: any) => {
+      switch (method) {
+        case 'clockn-disable':
+          await this.close()
+          resp.send()
+          break;
+        case 'clockn-enable':
+          await this.enable()
+          resp.send()
+          break;
         default:
           break;
       }
@@ -54,23 +94,28 @@ export class Clock {
     buffer.setOption('modifiable', false)
 
     const win = await this.createWin(this.bufnr)
-    win.setOption('number', false)
-    win.setOption('relativenumber', false)
-    win.setOption('cursorline', false)
-    win.setOption('cursorcolumn', false)
-    win.setOption('conceallevel', 2)
-    win.setOption('signcolumn', 'no')
-    this.updateClock()
+    await win.setOption('number', false)
+    await win.setOption('relativenumber', false)
+    await win.setOption('cursorline', false)
+    await win.setOption('cursorcolumn', false)
+    await win.setOption('conceallevel', 2)
+    await win.setOption('signcolumn', 'no')
+    await this.updateClock()
   }
 
-  public close() {
+  public async close() {
     clearTimeout(this.timer)
-    this.plugin.nvim.call('clockn#close_win', this.winnr)
+    await this.plugin.nvim.call('clockn#close_win', this.winnr)
     this.timer = undefined
     this.buffer = undefined
   }
 
-  public async flash() {
+  public destroy() {
+    this.close()
+    this.flashSubscription.unsubscribe()
+  }
+
+  private async flash() {
     if (this.timer === undefined) {
       return
     }
@@ -91,14 +136,14 @@ export class Clock {
     nvim.command('mode')
   }
 
-  private updateClock() {
+  private async updateClock() {
     if (this.timer) {
       clearTimeout(this.timer)
     }
     this.timer = setTimeout(() => {
       this.updateClock()
     }, 1000)
-    this.updateTime()
+    await this.updateTime()
   }
 
   private async updateTime() {
@@ -114,9 +159,9 @@ export class Clock {
         const second = `${fronts[seconds[0]][idx].join('')}${fronts[seconds[1]][idx].join('')}`
         return `${hour}${separator}${minute}${separator}${second}`.trimRight()
       })
-    await this.buffer.setOption('modifiable', true)
-    await this.buffer.replace(lines, 0)
-    await this.buffer.setOption('modifiable', false)
+    this.buffer && await this.buffer.setOption('modifiable', true)
+    this.buffer && await this.buffer.replace(lines, 0)
+    this.buffer && await this.buffer.setOption('modifiable', false)
   }
 
   private async createBuffer() {
