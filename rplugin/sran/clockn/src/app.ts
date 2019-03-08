@@ -143,6 +143,7 @@ export class Clock {
   }
 
   private async updateTime() {
+    const { nvim } = this.plugin
     const now = new Date()
     const hours = align(now.getHours())
     const minutes = align(now.getMinutes())
@@ -156,7 +157,10 @@ export class Clock {
         return `${hour}${separator}${minute}${separator}${second}`.trimRight()
       })
     this.buffer && await this.buffer.setOption('modifiable', true)
+    const eventignore = await nvim.getOption('eventignore') as string
+    await nvim.setOption('eventignore', 'all')
     this.buffer && await this.buffer.replace(lines, 0)
+    await nvim.setOption('eventignore', eventignore)
     this.buffer && await this.buffer.setOption('modifiable', false)
   }
 
