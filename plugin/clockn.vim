@@ -15,6 +15,14 @@ else
   highlight default link ClockNormal Normal
 endif
 
+if !exists('g:clockn_to_top')
+  let g:clockn_to_top = 1
+endif
+
+if !exists('g:clockn_to_right')
+  let g:clockn_to_right = 1
+endif
+
 function! s:init() abort
   command! ClockDisable call clockn#disable()
   command! ClockEnable call clockn#enable()

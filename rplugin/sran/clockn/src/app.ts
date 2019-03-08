@@ -181,31 +181,37 @@ export class Clock {
 
   private async createWin(bufnr: number) {
     const { nvim } = this.plugin
-    this.winnr = await nvim.call(
-      'nvim_open_win',
-      [
-        bufnr,
-        false,
-        54,
-        5,
-        {
-          relative: 'editor',
-          anchor: 'NE',
-          focusable: false,
-          row: 1,
-          col: this.width
+    const toTop = await nvim.getVar('clockn_to_top') as number
+    const toRight = await nvim.getVar('clockn_to_right') as number
+    try {
+      this.winnr = await nvim.call(
+        'nvim_open_win',
+        [
+          bufnr,
+          false,
+          54,
+          5,
+          {
+            relative: 'editor',
+            anchor: 'NE',
+            focusable: false,
+            row: toTop,
+            col: this.width - toRight
+          }
+        ]
+      )
+      let win: Window
+      const windows = await nvim.windows
+      windows.some(w => {
+        if (w.id === this.winnr) {
+          win = w
+          return true
         }
-      ]
-    )
-    let win: Window
-    const windows = await nvim.windows
-    windows.some(w => {
-      if (w.id === this.winnr) {
-        win = w
-        return true
-      }
-      return false
-    })
-    return win
+        return false
+      })
+      return win
+    } catch (error) {
+      this.logger.error('Create Window Error: ', error)
+    }
   }
 }

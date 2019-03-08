@@ -290,12 +290,21 @@ var Clock = /** @class */ (function () {
     };
     Clock.prototype.createWin = function (bufnr) {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var nvim, _a, win, windows;
+            var nvim, toTop, toRight, _a, win_1, windows, error_1;
             var _this = this;
             return tslib_1.__generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         nvim = this.plugin.nvim;
+                        return [4 /*yield*/, nvim.getVar('clockn_to_top')];
+                    case 1:
+                        toTop = _b.sent();
+                        return [4 /*yield*/, nvim.getVar('clockn_to_right')];
+                    case 2:
+                        toRight = _b.sent();
+                        _b.label = 3;
+                    case 3:
+                        _b.trys.push([3, 6, , 7]);
                         _a = this;
                         return [4 /*yield*/, nvim.call('nvim_open_win', [
                                 bufnr,
@@ -306,23 +315,28 @@ var Clock = /** @class */ (function () {
                                     relative: 'editor',
                                     anchor: 'NE',
                                     focusable: false,
-                                    row: 1,
-                                    col: this.width
+                                    row: toTop,
+                                    col: this.width - toRight
                                 }
                             ])];
-                    case 1:
+                    case 4:
                         _a.winnr = _b.sent();
                         return [4 /*yield*/, nvim.windows];
-                    case 2:
+                    case 5:
                         windows = _b.sent();
                         windows.some(function (w) {
                             if (w.id === _this.winnr) {
-                                win = w;
+                                win_1 = w;
                                 return true;
                             }
                             return false;
                         });
-                        return [2 /*return*/, win];
+                        return [2 /*return*/, win_1];
+                    case 6:
+                        error_1 = _b.sent();
+                        this.logger.error('Create Window Error: ', error_1);
+                        return [3 /*break*/, 7];
+                    case 7: return [2 /*return*/];
                 }
             });
         });

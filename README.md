@@ -25,6 +25,10 @@ let g:clockn_color = '#000000'
 " or use the ClockNormal highlight group
 highlight ClockNormal guifg=#000000
 
+" position distance to top and right
+let g:clockn_to_top = 1
+let g:clockn_to_right = 1
+
 " enable clock
 :ClockEnable
 
