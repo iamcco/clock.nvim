@@ -101,7 +101,9 @@ export class Clock {
 
   public async close() {
     clearTimeout(this.timer)
-    await this.plugin.nvim.call('clockn#close_win', this.winnr)
+    if (this.winnr !== undefined) {
+      await this.plugin.nvim.call('clockn#close_win', this.winnr)
+    }
     this.timer = undefined
     this.buffer = undefined
   }

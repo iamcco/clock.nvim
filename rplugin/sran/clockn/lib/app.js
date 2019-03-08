@@ -136,9 +136,12 @@ var Clock = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         clearTimeout(this.timer);
+                        if (!(this.winnr !== undefined)) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.plugin.nvim.call('clockn#close_win', this.winnr)];
                     case 1:
                         _a.sent();
+                        _a.label = 2;
+                    case 2:
                         this.timer = undefined;
                         this.buffer = undefined;
                         return [2 /*return*/];
