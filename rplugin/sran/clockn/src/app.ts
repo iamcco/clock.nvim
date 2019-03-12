@@ -86,7 +86,6 @@ export class Clock {
     const buffer = await this.createBuffer()
     this.buffer = buffer
     buffer.setOption('buftype', 'nofile')
-    buffer.setOption('modifiable', false)
 
     const win = await this.createWin(this.bufnr)
     await win.setOption('number', false)
@@ -158,12 +157,10 @@ export class Clock {
         const second = `${fronts[seconds[0]][idx].join('')}${fronts[seconds[1]][idx].join('')}`
         return `${hour}${separator}${minute}${separator}${second}`.trimRight()
       })
-    this.buffer && await this.buffer.setOption('modifiable', true)
     const eventignore = await nvim.getOption('eventignore') as string
     await nvim.setOption('eventignore', 'all')
     this.buffer && await this.buffer.replace(lines, 0)
     await nvim.setOption('eventignore', eventignore)
-    this.buffer && await this.buffer.setOption('modifiable', false)
   }
 
   private async createBuffer() {

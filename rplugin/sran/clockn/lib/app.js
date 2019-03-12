@@ -97,7 +97,6 @@ var Clock = /** @class */ (function () {
                         buffer = _a.sent();
                         this.buffer = buffer;
                         buffer.setOption('buftype', 'nofile');
-                        buffer.setOption('modifiable', false);
                         return [4 /*yield*/, this.createWin(this.bufnr)];
                     case 4:
                         win = _a.sent();
@@ -209,9 +208,9 @@ var Clock = /** @class */ (function () {
     };
     Clock.prototype.updateTime = function () {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var nvim, now, hours, minutes, seconds, lines, _a, eventignore, _b, _c;
-            return tslib_1.__generator(this, function (_d) {
-                switch (_d.label) {
+            var nvim, now, hours, minutes, seconds, lines, eventignore, _a;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         nvim = this.plugin.nvim;
                         now = new Date();
@@ -226,39 +225,23 @@ var Clock = /** @class */ (function () {
                             var second = "" + fronts_1.fronts[seconds[0]][idx].join('') + fronts_1.fronts[seconds[1]][idx].join('');
                             return ("" + hour + separator + minute + separator + second).trimRight();
                         });
-                        _a = this.buffer;
-                        if (!_a) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.buffer.setOption('modifiable', true)];
-                    case 1:
-                        _a = (_d.sent());
-                        _d.label = 2;
-                    case 2:
-                        _a;
                         return [4 /*yield*/, nvim.getOption('eventignore')];
-                    case 3:
-                        eventignore = _d.sent();
+                    case 1:
+                        eventignore = _b.sent();
                         return [4 /*yield*/, nvim.setOption('eventignore', 'all')];
-                    case 4:
-                        _d.sent();
-                        _b = this.buffer;
-                        if (!_b) return [3 /*break*/, 6];
+                    case 2:
+                        _b.sent();
+                        _a = this.buffer;
+                        if (!_a) return [3 /*break*/, 4];
                         return [4 /*yield*/, this.buffer.replace(lines, 0)];
-                    case 5:
-                        _b = (_d.sent());
-                        _d.label = 6;
-                    case 6:
-                        _b;
+                    case 3:
+                        _a = (_b.sent());
+                        _b.label = 4;
+                    case 4:
+                        _a;
                         return [4 /*yield*/, nvim.setOption('eventignore', eventignore)];
-                    case 7:
-                        _d.sent();
-                        _c = this.buffer;
-                        if (!_c) return [3 /*break*/, 9];
-                        return [4 /*yield*/, this.buffer.setOption('modifiable', false)];
-                    case 8:
-                        _c = (_d.sent());
-                        _d.label = 9;
-                    case 9:
-                        _c;
+                    case 5:
+                        _b.sent();
                         return [2 /*return*/];
                 }
             });
