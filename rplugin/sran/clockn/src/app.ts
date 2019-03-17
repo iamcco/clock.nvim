@@ -118,10 +118,8 @@ export class Clock {
     }
     const { nvim } = this.plugin
     this.width = await nvim.getOption('columns') as number
-    await nvim.call('nvim_win_config',[
+    await nvim.call('nvim_win_set_config',[
       this.winnr,
-      -1,
-      -1,
       {
         relative: 'editor',
         anchor: 'NE',
@@ -188,9 +186,9 @@ export class Clock {
         [
           bufnr,
           false,
-          54,
-          5,
           {
+            width: 54,
+            height: 5,
             relative: 'editor',
             anchor: 'NE',
             focusable: false,

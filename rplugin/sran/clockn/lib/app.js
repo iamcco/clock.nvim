@@ -166,10 +166,8 @@ var Clock = /** @class */ (function () {
                         return [4 /*yield*/, nvim.getOption('columns')];
                     case 1:
                         _a.width = (_b.sent());
-                        return [4 /*yield*/, nvim.call('nvim_win_config', [
+                        return [4 /*yield*/, nvim.call('nvim_win_set_config', [
                                 this.winnr,
-                                -1,
-                                -1,
                                 {
                                     relative: 'editor',
                                     anchor: 'NE',
@@ -295,9 +293,9 @@ var Clock = /** @class */ (function () {
                         return [4 /*yield*/, nvim.call('nvim_open_win', [
                                 bufnr,
                                 false,
-                                54,
-                                5,
                                 {
+                                    width: 54,
+                                    height: 5,
                                     relative: 'editor',
                                     anchor: 'NE',
                                     focusable: false,
