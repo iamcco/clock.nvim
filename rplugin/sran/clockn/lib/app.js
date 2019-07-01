@@ -83,7 +83,7 @@ var Clock = /** @class */ (function () {
     };
     Clock.prototype.enable = function () {
         return tslib_1.__awaiter(this, void 0, void 0, function () {
-            var buffer, win;
+            var buffer, nvim, win, isSupportWinblend, winblend;
             return tslib_1.__generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -97,32 +97,44 @@ var Clock = /** @class */ (function () {
                         buffer = _a.sent();
                         this.buffer = buffer;
                         buffer.setOption('buftype', 'nofile');
+                        nvim = this.plugin.nvim;
                         return [4 /*yield*/, this.createWin(this.bufnr)];
                     case 4:
                         win = _a.sent();
-                        return [4 /*yield*/, win.setOption('number', false)];
+                        return [4 /*yield*/, nvim.call('exists', '+winblend')];
                     case 5:
-                        _a.sent();
-                        return [4 /*yield*/, win.setOption('relativenumber', false)];
+                        isSupportWinblend = _a.sent();
+                        if (!isSupportWinblend) return [3 /*break*/, 8];
+                        return [4 /*yield*/, nvim.getVar('clockn_winblend')];
                     case 6:
-                        _a.sent();
-                        return [4 /*yield*/, win.setOption('cursorline', false)];
+                        winblend = _a.sent();
+                        return [4 /*yield*/, win.setOption('winblend', winblend)];
                     case 7:
                         _a.sent();
-                        return [4 /*yield*/, win.setOption('cursorcolumn', false)];
-                    case 8:
-                        _a.sent();
-                        return [4 /*yield*/, win.setOption('conceallevel', 2)];
+                        _a.label = 8;
+                    case 8: return [4 /*yield*/, win.setOption('number', false)];
                     case 9:
                         _a.sent();
-                        return [4 /*yield*/, win.setOption('signcolumn', 'no')];
+                        return [4 /*yield*/, win.setOption('relativenumber', false)];
                     case 10:
                         _a.sent();
-                        return [4 /*yield*/, win.setOption('winhighlight', 'Normal:ClockNormal')];
+                        return [4 /*yield*/, win.setOption('cursorline', false)];
                     case 11:
                         _a.sent();
-                        return [4 /*yield*/, this.updateClock()];
+                        return [4 /*yield*/, win.setOption('cursorcolumn', false)];
                     case 12:
+                        _a.sent();
+                        return [4 /*yield*/, win.setOption('conceallevel', 2)];
+                    case 13:
+                        _a.sent();
+                        return [4 /*yield*/, win.setOption('signcolumn', 'no')];
+                    case 14:
+                        _a.sent();
+                        return [4 /*yield*/, win.setOption('winhighlight', 'Normal:ClockNormal')];
+                    case 15:
+                        _a.sent();
+                        return [4 /*yield*/, this.updateClock()];
+                    case 16:
                         _a.sent();
                         return [2 /*return*/];
                 }
