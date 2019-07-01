@@ -15,6 +15,10 @@ else
   highlight default link ClockNormal Normal
 endif
 
+if !exists('g:clockn_winblend')
+  let g:clockn_winblend = 100
+endif
+
 if !exists('g:clockn_to_top')
   let g:clockn_to_top = 1
 endif

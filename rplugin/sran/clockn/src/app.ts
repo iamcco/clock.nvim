@@ -87,7 +87,13 @@ export class Clock {
     this.buffer = buffer
     buffer.setOption('buftype', 'nofile')
 
+    const { nvim } = this.plugin
     const win = await this.createWin(this.bufnr)
+    const isSupportWinblend = await nvim.call('exists', '+winblend')
+    if (isSupportWinblend) {
+      const winblend = await nvim.getVar('clockn_winblend') as number
+      await win.setOption('winblend', winblend)
+    }
     await win.setOption('number', false)
     await win.setOption('relativenumber', false)
     await win.setOption('cursorline', false)

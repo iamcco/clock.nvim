@@ -22,6 +22,11 @@ let g:clockn_enable = 1
 " config the clock's color
 let g:clockn_color = '#000000'
 
+" config opacity of floating window background
+" 0-100 from fully opaque to transparent
+" default is 100
+let g:clockn_winblend = 100
+
 " or use the ClockNormal highlight group
 highlight ClockNormal guifg=#000000
 
