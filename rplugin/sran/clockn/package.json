@@ -1,6 +1,6 @@
 {
   "name": "clock.nvim",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "the missing clock for neovim",
   "main": "./lib/index.js",
   "author": "年糕小豆汤<ooiss@qq.com>",
@@ -11,8 +11,8 @@
   },
   "devDependencies": {
     "@types/node": "^11.10.4",
-    "neovim": "^4.2.1",
-    "sran.nvim": "^0.0.5",
-    "tslib": "^1.9.3"
+    "neovim": "^4.5.0",
+    "sran.nvim": "^0.0.6",
+    "tslib": "^1.10.0"
   }
 }
